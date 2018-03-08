@@ -1,10 +1,10 @@
 <!-- -*- mode: XML -*- -->
-<!-- run velodyne_pointcloud/CloudNodelet in a nodelet manager for an VLP-32C -->
+<!-- run velodyne_pointcloud/CloudNodelet in a nodelet manager for an HDL-32E -->
 
 <launch>
 
   <!-- declare arguments with default values -->
-  <arg name="calibration" default="$(find velodyne_pointcloud)/params/VeloView-VLP-32C.yaml"/>
+  <arg name="calibration" default="$(find velodyne_pointcloud)/params/S3db.yaml"/>
   <arg name="device_ip" default="" />
   <arg name="frame_id" default="velodyne" />
   <arg name="manager" default="$(arg frame_id)_nodelet_manager" />
@@ -15,22 +15,20 @@
   <arg name="read_fast" default="false" />
   <arg name="read_once" default="false" />
   <arg name="repeat_delay" default="0.0" />
-  <arg name="rpm" default="600.0" />
-  <arg name="laserscan_ring" default="-1" />
-  <arg name="laserscan_resolution" default="0.007" />
-  <arg name="distance_resolution" default="0.004" />
+  <arg name="rpm" default="361.0" />
 
   <!-- start nodelet manager and driver nodelets -->
   <include file="$(find velodyne_driver)/launch/nodelet_manager.launch">
     <arg name="device_ip" value="$(arg device_ip)"/>
     <arg name="frame_id" value="$(arg frame_id)"/>
     <arg name="manager" value="$(arg manager)" />
-    <arg name="model" value="VLP32C"/>
+    <arg name="model" value="64E_S2"/> <!-- should be 64E_S3, but to sync with code -->
     <arg name="pcap" value="$(arg pcap)"/>
     <arg name="port" value="$(arg port)"/>
     <arg name="read_fast" value="$(arg read_fast)"/>
     <arg name="read_once" value="$(arg read_once)"/>
     <arg name="repeat_delay" value="$(arg repeat_delay)"/>
+    <!-- <arg name="npackets" value="384"/>-->
     <arg name="rpm" value="$(arg rpm)"/>
   </include>
 
@@ -40,14 +38,6 @@
     <arg name="manager" value="$(arg manager)" />
     <arg name="max_range" value="$(arg max_range)"/>
     <arg name="min_range" value="$(arg min_range)"/>
-    <arg name="distance_resolution" value="$(arg distance_resolution)"/>
-  </include>
-
-  <!-- start laserscan nodelet -->
-  <include file="$(find velodyne_pointcloud)/launch/laserscan_nodelet.launch">
-    <arg name="manager" value="$(arg manager)" />
-    <arg name="ring" value="$(arg laserscan_ring)"/>
-    <arg name="resolution" value="$(arg laserscan_resolution)"/>
   </include>
 
 </launch>

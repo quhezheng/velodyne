@@ -123,29 +123,6 @@ else:
 calibration['num_lasers'] = num_enabled
 print(str(num_enabled) + ' lasers')
 
-# add minimum laser intensities
-minIntensities = db.find('DB/minIntensity_')
-if minIntensities != None:
-    index = 0
-    for el in minIntensities:
-        if el.tag == 'item':
-            if enabled_lasers[index]:
-                value = int(el.text)
-                if value != 0:
-                    addLaserCalibration(index, 'min_intensity', value)
-            index += 1
-
-# add maximum laser intensities
-maxIntensities = db.find('DB/maxIntensity_')
-if maxIntensities != None:
-    index = 0
-    for el in maxIntensities:
-        if el.tag == 'item':
-            if enabled_lasers[index]:
-                value = int(el.text)
-                if value != 255:
-                    addLaserCalibration(index, 'max_intensity', value)
-                index += 1
 
 # add calibration information for each laser
 for el in db.find('DB/points_'):
@@ -184,6 +161,30 @@ for el in db.find('DB/points_'):
                                         float(field.text) * cm2meters)
                 elif field.tag == 'focalSlope_':
                     addLaserCalibration(index, 'focal_slope', float(field.text))
+
+# add minimum laser intensities
+minIntensities = db.find('DB/minIntensity_')
+if minIntensities != None:
+    index = 0
+    for el in minIntensities:
+        if el.tag == 'item':
+            if enabled_lasers[index]:
+                value = int(el.text)
+                if value != 0:
+                    addLaserCalibration(index, 'min_intensity', value)
+            index += 1
+
+# add maximum laser intensities
+maxIntensities = db.find('DB/maxIntensity_')
+if maxIntensities != None:
+    index = 0
+    for el in maxIntensities:
+        if el.tag == 'item':
+            if enabled_lasers[index]:
+                value = int(el.text)
+                if value != 255:
+                    addLaserCalibration(index, 'max_intensity', value)
+                index += 1
 
 # validate input data
 if calibration['num_lasers'] <= 0:

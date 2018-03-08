@@ -53,6 +53,11 @@ VelodyneDriver::VelodyneDriver(ros::NodeHandle node,
       packet_rate = 1808.0;
       model_full_name = std::string("HDL-") + config_.model;
     }
+	else if(config_.model == "VLP32C")
+    {
+      packet_rate = 1507.0;
+      model_full_name = "VLP-32C";
+    }
     else if (config_.model == "32C")
     {
       packet_rate = 1808.0;

@@ -103,6 +103,8 @@ namespace velodyne_rawdata
       cos_rot_table_[rot_index] = cosf(rotation);
       sin_rot_table_[rot_index] = sinf(rotation);
     }
+
+    private_nh.getParam("distance_resolution",dist_res_);
    return 0;
   }
 
@@ -182,6 +184,7 @@ namespace velodyne_rawdata
         union two_bytes tmp;
         tmp.bytes[0] = raw->blocks[i].data[k];
         tmp.bytes[1] = raw->blocks[i].data[k+1];
+        
         /*condition added to avoid calculating points which are not
           in the interesting defined area (min_angle < area < max_angle)*/
         if ((raw->blocks[i].rotation >= config_.min_angle 
@@ -190,8 +193,8 @@ namespace velodyne_rawdata
              ||(config_.min_angle > config_.max_angle 
              && (raw->blocks[i].rotation <= config_.max_angle 
              || raw->blocks[i].rotation >= config_.min_angle))){
-          float distance = tmp.uint * DISTANCE_RESOLUTION;
-          distance += corrections.dist_correction;
+          float distance = tmp.uint * dist_res_; /*DISTANCE_RESOLUTION;*/
+          distance += (tmp.uint == 0 ? 0.0f : corrections.dist_correction);
   
           float cos_vert_angle = corrections.cos_vert_correction;
           float sin_vert_angle = corrections.sin_vert_correction;
@@ -305,6 +308,8 @@ namespace velodyne_rawdata
         }
       }
     }
+
+    //outputPacketInfo(raw);
   }
   
   /** @brief convert raw VLP16 packet to point cloud
@@ -369,9 +374,9 @@ namespace velodyne_rawdata
                && (azimuth_corrected <= config_.max_angle 
                || azimuth_corrected >= config_.min_angle))){
 
-            // convert polar coordinates to Euclidean XYZ
+            // convert polar coordinates to Euclidean XYZ            
             float distance = tmp.uint * DISTANCE_RESOLUTION;
-            distance += corrections.dist_correction;
+            distance += tmp.uint == 0 ? 0.0f : corrections.dist_correction;
             
             float cos_vert_angle = corrections.cos_vert_correction;
             float sin_vert_angle = corrections.sin_vert_correction;
@@ -485,5 +490,20 @@ namespace velodyne_rawdata
       }
     }
   }  
+
+  void RawData::outputPacketInfo(const raw_packet_t * raw)
+  {
+      unsigned int gpsStamp;
+      memcpy(&gpsStamp, raw->status, 4);
+      uint8_t gpsStatusType = raw->status[4];
+      uint gpsStatusValue = (uint)raw->status[5];
+
+      ROS_INFO_STREAM("Received GPS time stamp : " << gpsStamp << " Status type: " << gpsStatusType << " Status value: " << gpsStatusValue);
+
+      for (int i = 0; i < BLOCKS_PER_PACKET; i++) {
+      	ROS_INFO_STREAM("Rotation angle " << "[" << i << "] = " << raw->blocks[i].rotation );      
+      }
+
+  }
 
 } // namespace velodyne_rawdata
